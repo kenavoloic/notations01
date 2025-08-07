@@ -1,0 +1,39 @@
+{% extends 'configurations/base.html' %}
+
+{% block title %}Connexion - Utilisateur01{% endblock %}
+
+{% block login_content %}
+<div class="login-container">
+	<div class="login-form">
+		<h2 class="login-title">🔐 Connexion</h2>
+
+		{% if form.errors %}
+		<div
+			style="color: #f44336; margin-bottom: 20px; padding: 10px; background: rgba(244, 67, 54, 0.1); border-radius: 6px; border-left: 4px solid #f44336;">
+			{% for field, errors in form.errors.items %}
+			{% for error in errors %}
+			<div>{{ error }}</div>
+			{% endfor %}
+			{% endfor %}
+		</div>
+		{% endif %}
+
+		<form method="post">
+			{% csrf_token %}
+			<div class="form-group">
+				<label for="{{ form.username.id_for_label }}">👤 Identifiant</label>
+				{{ form.username }}
+			</div>
+
+			<div class="form-group">
+				<label for="{{ form.password.id_for_label }}">🔒 Mot de passe</label>
+				{{ form.password }}
+			</div>
+
+			<button type="submit" class="btn">Se connecter 🚪✨✨</button>
+		</form>
+
+
+	</div>
+</div>
+{% endblock %}

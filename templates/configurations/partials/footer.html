@@ -1,0 +1,133 @@
+{% load static %}
+
+<footer class="main-footer">
+    <div class="footer-content">
+        <div class="container">
+            <div class="footer-grid">
+                <!-- Section Logo et description -->
+                <div class="footer-section">
+                    <div class="footer-logo">
+                        <div class="logo-icon">
+                            <span>A</span>
+                        </div>
+                        <span class="footer-brand">{% block footer_app_name %}Mon App{% endblock %}</span>
+                    </div>
+                    <p class="footer-description">
+                        {% block footer_description %}
+
+                        {% endblock %}
+                    </p>
+                </div>
+
+                <!-- Section Navigation -->
+                <div class="footer-section">
+                    <h4 class="footer-title">Navigation</h4>
+                    <ul class="footer-links">
+                        <li><a href="{% url 'configurations:accueil' %}">Accueil</a></li>
+                        {% if user.is_authenticated %}
+                            <li><a href="{% url 'dashboard' %}">Tableau de bord</a></li>
+                            <li><a href="{% url 'profile' %}">Mon profil</a></li>
+                        {% else %}
+                            <li><a href="{% url 'configurations:connexion' %}">Connexion</a></li>
+                        {% endif %}
+                        {% block extra_nav_links %}{% endblock %}
+                    </ul>
+                </div>
+
+
+            </div>
+
+            <!-- Section réseaux sociaux -->
+            {% block social_links %}
+            <div class="footer-social">
+                <h4 class="footer-title">Suivez-nous</h4>
+                <div class="social-links">
+                    <a href="#" class="social-link" aria-label="Facebook">
+                        <span>📘</span>
+                    </a>
+                    <a href="#" class="social-link" aria-label="Twitter">
+                        <span>🐦</span>
+                    </a>
+                    <a href="#" class="social-link" aria-label="LinkedIn">
+                        <span>💼</span>
+                    </a>
+                    <a href="#" class="social-link" aria-label="Instagram">
+                        <span>📷</span>
+                    </a>
+                </div>
+            </div>
+            {% endblock %}
+        </div>
+    </div>
+
+    <!-- Copyright -->
+    <div class="footer-bottom">
+        <div class="container">
+            <div class="footer-bottom-content">
+                <p class="copyright">
+                    © {% now "Y" %} {% block footer_company %}Mon App{% endblock %}. 
+                    Tous droits réservés.
+                </p>
+                <div class="footer-meta">
+                    <span class="version">
+                        Version {% block app_version %}1.0.0{% endblock %}
+                    </span>
+                    <span class="build-info">
+                        {% if debug %}
+                            <span class="debug-badge">DEBUG</span>
+                        {% endif %}
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- Bouton "Retour en haut" -->
+<button class="back-to-top" id="backToTop" aria-label="Retour en haut">
+    <span>⬆️</span>
+</button>
+
+
+<script>
+ // Script pour le bouton "Retour en haut"
+ document.addEventListener('DOMContentLoaded', function() {
+   const backToTopButton = document.getElementById('backToTop');
+   
+   // Afficher/masquer le bouton selon la position de scroll
+   function toggleBackToTop() {
+     if (window.pageYOffset > 300) {
+       backToTopButton.classList.add('visible');
+     } else {
+       backToTopButton.classList.remove('visible');
+     }
+   }
+   
+   // Smooth scroll vers le haut
+   function scrollToTop() {
+     window.scrollTo({
+       top: 0,
+       behavior: 'smooth'
+     });
+   }
+   
+   // Event listeners
+   window.addEventListener('scroll', toggleBackToTop);
+   backToTopButton.addEventListener('click', scrollToTop);
+   
+   // Vérification initiale
+   toggleBackToTop();
+ });
+
+ // Fonction utilitaire pour les liens externes
+ document.addEventListener('DOMContentLoaded', function() {
+   // Ajouter target="_blank" aux liens externes
+   const footerLinks = document.querySelectorAll('.footer-links a, .social-link');
+   footerLinks.forEach(link => {
+     if (link.hostname && link.hostname !== window.location.hostname) {
+       link.setAttribute('target', '_blank');
+       link.setAttribute('rel', 'noopener noreferrer');
+     }
+   });
+ });
+</script>

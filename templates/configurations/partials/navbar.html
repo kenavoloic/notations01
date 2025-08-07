@@ -1,0 +1,59 @@
+{% load static %}
+
+<nav class="top-navbar">
+  <div class="nav-container">
+    <!-- Logo -->
+    <a href="" class="logo">
+      <div class="logo-icon">
+        <span>A</span>
+      </div>
+      {% block app_name %}Mon App{% endblock %}
+    </a>
+
+    <!-- Navigation droite -->
+    <div class="nav-right">
+      {% if user.is_authenticated %}
+      <!-- Liens pour utilisateurs connectés -->
+      <a href="{% url 'dashboard' %}" class="admin-link">
+        <span>📊</span> Tableau de bord
+      </a>
+      
+      {% if user.is_staff %}
+      <a href="{% url 'admin:index' %}" class="admin-link">
+        <span>⚙️</span> Admin
+      </a>
+      {% endif %}
+      
+      <a href="{% url 'profile' %}" class="admin-link">
+        <span>👤</span> {{ user.username }}
+      </a>
+      {% else %}
+      <!-- Liens pour utilisateurs non connectés -->
+      <a href="{% url 'configurations:connexion' %}" class="admin-link">
+        <span>🔐</span> Connexion
+      </a>
+
+      {% endif %}
+
+      <!-- Toggle thème -->
+      <button class="theme-toggle" type="button" aria-label="Changer le thème">
+        <span class="theme-icon">🌓</span>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<!-- Navbar secondaire (optionnelle pour les pages authentifiées) -->
+{% if user.is_authenticated and show_secondary_nav %}
+<nav class="secondary-navbar">
+  <a href="{% url 'dashboard' %}">Accueil</a>
+  <a href="{% url 'projects' %}">Projets</a>
+  <a href="{% url 'settings' %}">Paramètres</a>
+  
+  <!-- Bouton de déconnexion -->
+  <form method="post" action="{% url 'logout' %}" style="display: inline;">
+    {% csrf_token %}
+    <button type="submit" class="logout-btn">Déconnexion</button>
+  </form>
+</nav>
+{% endif %}

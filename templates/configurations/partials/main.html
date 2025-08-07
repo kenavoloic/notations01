@@ -1,0 +1,25 @@
+<!-- Messages Django -->
+{% if messages %}
+    <div class="messages-container">
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                {{ message }}
+                <button type="button" class="close" onclick="this.parentElement.style.display='none';">
+                    <span>&times;</span>
+                </button>
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
+
+<!-- Contenu principal -->
+<div class="container">
+    {% block content %}
+        <!-- Le contenu spécifique à chaque page sera inséré ici -->
+        <div class="content">
+            <h1>{% block page_title %}Bienvenue{% endblock %}</h1>
+            <p>{% block page_description %}Contenu par défaut de la page{% endblock %}</p>
+        </div>
+	{% endblock %}
+</div>
+

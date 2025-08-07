@@ -1,0 +1,24 @@
+{% extends 'configurations/base.html' %}
+
+{% block title %}Accueil - Mon Projet{% endblock %}
+
+{% block header %}Page d'Accueil{% endblock %}
+
+{% block content %}
+<p>Ceci est la page d'accueil de votre application Django.</p>
+
+<div style="margin-top: 30px;">
+	<h3>Navigation rapide :</h3>
+	<ul>
+		<li><a href="{% url 'pages:pageA' %}">Aller à la Page A</a></li>
+		<li><a href="{% url 'pages:pageB' %}">Aller à la Page B</a></li>
+		<li><a href="{% url 'pages:pageC' %}">Aller à la Page C</a></li>
+	</ul>
+</div>
+
+<div style="background: #e3f2fd; padding: 15px; border-radius: 4px; margin-top: 20px;">
+	<strong>Note :</strong> Toutes les pages sont protégées par authentification grâce au middleware
+	LoginRequiredMiddleware.
+</div>
+{% endblock %}
+
