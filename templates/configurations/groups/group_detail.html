@@ -1,0 +1,153 @@
+{% extends 'groups/base.html' %}
+
+{% block title %}{{ group.name }}{% endblock %}
+
+{% block content %}
+<div class="grid grid-2">
+	<div>
+		<div class="card">
+			<div class="card-header">
+				<h3>👥 {{ group.name }}</h3>
+				<span class="badge">{{ group.get_members_count }} membres</span>
+			</div>
+			<div class="card-body">
+				{% if group.description %}
+				<p class="mb-3">{{ group.description }}</p>
+				{% endif %}
+
+				<small class="text-muted">
+					Créé par {{ group.created_by.username }} le {{ group.created_at|date:"d/m/Y à H:i" }}
+				</small>
+
+				<h4 class="mt-4 mb-3">Membres du groupe</h4>
+				{% if members %}
+				{% for member in members %}
+				<div class="member-item">
+					<div class="member-info">
+						<span class="member-name">👤 {{ member.username }}</span>
+						{% if member.first_name or member.last_name %}
+						<span class="member-details">
+							{{ member.first_name }} {{ member.last_name }}
+						</span>
+						{% endif %}
+					</div>
+					{% if is_creator and member != group.created_by %}
+					<form method="post" action="{% url 'remove_user_from_group' group.id %}" style="display: inline;">
+						{% csrf_token %}
+						<input type="hidden" name="user_id" value="{{ member.id }}">
+						<button type="submit" class="btn btn-outline-danger"
+							onclick="return confirm('Supprimer {{ member.username }} du groupe ?')">
+							✕
+						</button>
+					</form>
+					{% endif %}
+				</div>
+				{% endfor %}
+				{% else %}
+				<div class="alert alert-info">
+					ℹ️ Aucun membre dans ce groupe.
+				</div>
+				{% endif %}
+			</div>
+		</div>
+	</div>
+
+	{% if is_creator %}
+	<div>
+		<div class="card">
+			<div class="card-header">
+				<h4>➕ Ajouter un membre</h4>
+			</div>
+			<div class="card-body">
+				{% if all_users %}
+				<form method="post" action="{% url 'add_user_to_group' group.id %}">
+					{% csrf_token %}
+					<div class="form-group">
+						<select name="user_id" class="form-control" required>
+							<option value="">Sélectionner un utilisateur</option>
+							{% for user in all_users %}
+							<option value="{{ user.id }}">
+								{{ user.username }}
+								{% if user.first_name or user.last_name %}
+								- {{ user.first_name }} {{ user.last_name }}
+								{% endif %}
+							</option>
+							{% endfor %}
+						</select>
+					</div>
+					<button type="submit" class="btn btn-success" style="width: 100%;">
+						➕ Ajouter
+					</button>
+				</form>
+				{% else %}
+				<div class="alert alert-info">
+					ℹ️ Tous les utilisateurs sont déjà membres du groupe.
+				</div>
+				{% endif %}
+			</div>
+		</div>
+
+		<!-- Version AJAX (optionnelle) -->
+		<div class="card mt-3">
+			<div class="card-header">
+				<h5>⚡ Ajouter rapidement</h5>
+			</div>
+			<div class="card-body">
+				<div class="flex gap-1">
+					<select id="ajax-user-select" class="form-control">
+						<option value="">Sélectionner...</option>
+						{% for user in all_users %}
+						<option value="{{ user.id }}">{{ user.username }}</option>
+						{% endfor %}
+					</select>
+					<button class="btn btn-success" type="button" onclick="addUserAjax()">
+						➕
+					</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	{% endif %}
+</div>
+
+<div class="mt-3">
+	<a href="{% url 'group_list' %}" class="btn btn-secondary">
+		← Retour à la liste
+	</a>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+	function addUserAjax() {
+		const select = document.getElementById('ajax-user-select');
+		const userId = select.value;
+
+		if (!userId) {
+			alert('Veuillez sélectionner un utilisateur');
+			return;
+		}
+
+		const formData = new FormData();
+		formData.append('user_id', userId);
+		formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+
+		fetch('{% url "api_add_user" group.id %}', {
+			method: 'POST',
+			body: formData
+		})
+			.then(response => response.json())
+			.then(data => {
+				if (data.success) {
+					location.reload(); // Recharger la page pour voir les changements
+				} else {
+					alert(data.message);
+				}
+			})
+			.catch(error => {
+				console.error('Erreur:', error);
+				alert('Une erreur est survenue');
+			});
+	}
+</script>
+{% endblock %}
