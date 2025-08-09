@@ -1,0 +1,93 @@
+/* Header personnalisé pour la page de connexion admin */
+.custom-header {
+    background: #fff;
+    border-bottom: 1px solid #ddd;
+    padding: 0;
+    margin: 0;
+    position: relative;
+    z-index: 999;
+    display: flex;
+    justify-content: space-between;
+}
+
+.header-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.logo-container {
+    flex-shrink: 0;
+}
+
+.logo {
+    font-size: 24px;
+    font-weight: bold;
+    text-decoration: none;
+    color: #333;
+    display: block;
+}
+
+.logo:hover {
+    color: #007cba;
+}
+
+.admin-nav {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.admin-link {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    text-decoration: none;
+    color: #333;
+    padding: 8px 12px;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.admin-link:hover {
+    background-color: #f5f5f5;
+    text-decoration: none;
+    color: #007cba;
+}
+
+.admin-icon {
+    font-size: 16px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .header-nav {
+        padding: 10px 15px;
+    }
+    
+    .logo {
+        font-size: 20px;
+    }
+    
+    .admin-nav {
+        gap: 10px;
+    }
+    
+    .admin-link {
+        padding: 6px 8px;
+        font-size: 14px;
+    }
+}
+
+/* Ajustements pour la page de login */
+body {
+    margin: 0;
+    padding: 0;
+}
+
+#container {
+  margin-top: 0;
+}

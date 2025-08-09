@@ -1,7 +1,7 @@
 .venv
 .env
 .env*
-ztemp
+ztemp/
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]

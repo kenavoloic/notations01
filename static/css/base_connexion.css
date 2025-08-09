@@ -1,0 +1,415 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    line-height: 1.6;
+}
+
+/* Navigation Header */
+.header-nav {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.logo {
+    color: white;
+    font-size: 1.5rem;
+    font-weight: 700;
+    text-decoration: none;
+    transition: opacity 0.3s ease;
+}
+
+.logo:hover {
+    opacity: 0.8;
+}
+
+.admin-nav {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.admin-link {
+    color: rgba(255, 255, 255, 0.9);
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+    font-size: 0.875rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.theme-toggle {
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: rgba(255, 255, 255, 0.9);
+    padding: 0.5rem;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    font-size: 1.2rem;
+}
+
+.theme-toggle:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.05);
+}
+
+.theme-toggle:focus {
+    outline: 2px solid rgba(255, 255, 255, 0.5);
+    outline-offset: 2px;
+}
+
+.admin-link:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-1px);
+}
+
+.admin-link:focus {
+    outline: 2px solid rgba(255, 255, 255, 0.5);
+    outline-offset: 2px;
+}
+
+/* Main Content */
+.main-content {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1rem;
+}
+
+.login-section {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(15px);
+    border-radius: 20px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    padding: 3rem 2.5rem;
+    width: 100%;
+    max-width: 420px;
+    position: relative;
+    overflow: hidden;
+}
+
+.login-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+}
+
+.login-title {
+    color: #2d3748;
+    font-size: 2rem;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 2rem;
+    position: relative;
+}
+
+.login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.form-field {
+    position: relative;
+}
+
+.form-field label {
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+}
+
+.form-field input {
+    width: 100%;
+    padding: 1rem;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    font-size: 1rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    background: #fff;
+    color: #2d3748;
+}
+
+.form-field input::placeholder {
+    color: #a0aec0;
+    transition: color 0.3s ease;
+}
+
+.form-field input:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+    transform: translateY(-1px);
+}
+
+.form-field input:focus::placeholder {
+    color: #cbd5e0;
+}
+
+.form-field input:valid {
+    border-color: #48bb78;
+}
+
+.form-field input:invalid:not(:placeholder-shown) {
+    border-color: #e53e3e;
+}
+
+.submit-button {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 1rem;
+    border: none;
+    border-radius: 12px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    margin-top: 0.5rem;
+}
+
+.submit-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s;
+}
+
+.submit-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+}
+
+.submit-button:hover::before {
+    left: 100%;
+}
+
+.submit-button:active {
+    transform: translateY(0);
+}
+
+.submit-button:focus {
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.3);
+}
+
+.submit-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.security-info {
+    text-align: center;
+    margin-top: 2rem;
+    padding: 1rem;
+    background: rgba(72, 187, 120, 0.1);
+    border-radius: 8px;
+    border-left: 4px solid #48bb78;
+}
+
+.security-info p {
+    color: #2f855a;
+    font-size: 0.875rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.security-icon {
+    font-size: 1rem;
+}
+
+/* Animations */
+.login-section {
+    animation: slideInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* États de chargement */
+.loading .submit-button {
+    pointer-events: none;
+}
+
+.loading .submit-button::after {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    margin: auto;
+    border: 2px solid transparent;
+    border-top-color: #ffffff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .header-nav {
+        padding: 1rem;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .login-section {
+        padding: 2rem 1.5rem;
+        margin: 1rem;
+    }
+
+    .login-title {
+        font-size: 1.75rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .login-section {
+        padding: 1.5rem 1rem;
+        border-radius: 16px;
+    }
+
+    .form-field input {
+        padding: 0.75rem;
+    }
+
+    .submit-button {
+        padding: 0.875rem;
+        font-size: 1rem;
+    }
+}
+
+/* Mode sombre */
+body.dark-theme {
+    background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 100%);
+}
+
+body.dark-theme .header-nav {
+    background: rgba(0, 0, 0, 0.2);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+body.dark-theme .login-section {
+    background: rgba(26, 32, 44, 0.95);
+    color: #e2e8f0;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+}
+
+body.dark-theme .login-title {
+    color: #f7fafc;
+}
+
+body.dark-theme .form-field label {
+    color: #cbd5e0;
+}
+
+body.dark-theme .form-field input {
+    background: #2d3748;
+    color: #f7fafc;
+    border-color: #4a5568;
+}
+
+body.dark-theme .form-field input::placeholder {
+    color: #718096;
+}
+
+body.dark-theme .form-field input:focus {
+    background: #2d3748;
+    border-color: #667eea;
+}
+
+body.dark-theme .form-field input:focus::placeholder {
+    color: #a0aec0;
+}
+
+body.dark-theme .form-field input:valid {
+    border-color: #68d391;
+}
+
+body.dark-theme .form-field input:invalid:not(:placeholder-shown) {
+    border-color: #fc8181;
+}
+
+body.dark-theme .security-info {
+    background: rgba(72, 187, 120, 0.15);
+    border-left-color: #68d391;
+}
+
+body.dark-theme .security-info p {
+    color: #68d391;
+}
+
+/* Transition pour le changement de thème */
+body {
+    transition: background 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.login-section,
+.form-field input,
+.form-field label {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Animation du bouton de thème */
+.theme-toggle {
+    position: relative;
+    overflow: hidden;
+}
+
+.theme-toggle .theme-icon {
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+body.dark-theme .theme-toggle .theme-icon {
+    transform: rotate(180deg);
+}

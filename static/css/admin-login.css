@@ -1,0 +1,80 @@
+/* Extensions spécifiques pour l'interface administrateur Django */
+/* Ce fichier doit être chargé après base.css */
+
+/* Messages d'erreur Django */
+.errorlist {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 1rem 0;
+}
+
+.errorlist li {
+    background: rgba(229, 62, 62, 0.1);
+    color: #e53e3e;
+    padding: 0.75rem;
+    border-radius: 8px;
+    border-left: 4px solid #e53e3e;
+    font-size: 0.875rem;
+    margin-bottom: 0.5rem;
+}
+
+.error {
+    border-color: #e53e3e !important;
+}
+
+/* Messages de succès/info */
+.messages {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 1rem 0;
+}
+
+.messages li {
+    padding: 0.75rem;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    margin-bottom: 0.5rem;
+}
+
+.messages .success {
+    background: rgba(72, 187, 120, 0.1);
+    color: #2f855a;
+    border-left: 4px solid #48bb78;
+}
+
+.messages .info {
+    background: rgba(102, 126, 234, 0.1);
+    color: #3182ce;
+    border-left: 4px solid #667eea;
+}
+
+.messages .warning {
+    background: rgba(237, 137, 54, 0.1);
+    color: #c05621;
+    border-left: 4px solid #ed8936;
+}
+
+/* Adaptations pour le mode sombre */
+body.dark-theme .errorlist li {
+    background: rgba(252, 129, 129, 0.15);
+    color: #fc8181;
+    border-left-color: #fc8181;
+}
+
+body.dark-theme .messages .success {
+    background: rgba(104, 211, 145, 0.15);
+    color: #68d391;
+    border-left-color: #68d391;
+}
+
+body.dark-theme .messages .info {
+    background: rgba(102, 126, 234, 0.15);
+    color: #90cdf4;
+    border-left-color: #667eea;
+}
+
+body.dark-theme .messages .warning {
+    background: rgba(237, 137, 54, 0.15);
+    color: #f6ad55;
+    border-left-color: #ed8936;
+}
