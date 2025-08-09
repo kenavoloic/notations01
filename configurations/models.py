@@ -5,6 +5,7 @@ from django.contrib.auth.models import Group, User
 from django.urls import reverse
 from django.core.exceptions import ValidationError
 
+# Gestion des groupes
 class GroupePage(models.Model):
     """Modèle pour définir les groupes de pages"""
     nom = models.CharField(max_length=50, unique=True)
@@ -133,4 +134,325 @@ class GroupMembership(models.Model):
     
     def __str__(self):
         return f"{self.user.username} in {self.group.name}"
+#=========================================================
+# ==================== Logique métier ====================
+# Questionnement : on_delete=models.CASCADE ou on_delete=models.PROTECT ?
+# Pour l'instant CASCADE mais très certainement PROTECT 
+#=========================================================
+class Societe(models.Model):
+    nom = models.CharField(max_length=255, help_text="Nom de la société")
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self):
+        return self.nom
 
+    def clean(self):
+        if self.nom:
+            self.nom = self.nom.strip()
+        if not self.nom:
+            raise ValidationError({'nom':"Un nom de société est requis."})
+
+    class Meta:
+        verbose_name = "Société"
+        verbose_name_plural = "Sociétés"
+        ordering = ['nom']
+        indexes = [models.Index(fields=['nom']),]
+
+class Service(models.Model):
+    nom = models.CharField(max_length=255, help_text="Nom du service")
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self):
+        return self.nom
+
+    def clean(self):
+        if self.nom:
+            self.nom = self.nom.strip()
+        if not self.nom:
+            raise ValidationError({'nom': "Un nom de service est requis."})
+
+    class Meta:
+        verbose_name = "Service"
+        verbose_name_plural = "Services"
+        ordering = ['nom']
+        indexes = [models.Index(fields=['nom']),]
+    
+class Site(models.Model):
+    nom = models.CharField(max_length=255, help_text="Commune du site")
+    code_postal = models.CharField(
+        max_length=5,
+        validators=[RegexValidator(r'^\d{5}$', 'Un code postal français contient 5 caractères')],
+        help_text="Code postal français sur 5 caractères."
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.nom} ({self.code_postal})"
+
+    def clean(self):
+        if self.nom:
+            self.nom = self.nom.strip()
+        if not self.nom:
+            raise ValidationError({'nom':"Un nom de commune est requis."})
+
+    class Meta:
+        verbose_name = "Site"
+        verbose_name_plural = "Sites"
+        ordering = ['code_postal','nom']
+        unique_together = ['code_postal','nom']
+        indexes = [
+            models.Index(fields=['code_postal']),
+            models.Index(fields=['nom']),
+        ]
+
+class Conducteur(models.Model):
+    erp_id = models.IntegerField(unique=True, help_text="Identifiant du conducteur dans l'ERP.")
+    nom = models.CharField(max_length=255)
+    prenom = models.CharField(max_length=255)
+    date_naissance = models.DateField(null=True, blank=True, help_text="Date de naissance (optionnelle).")
+    date_entree = models.DateField(help_text="Date d'embauche")
+    date_sortie = models.DateField(null=True, blank=True, help_text="Date de fin de contrat.")
+    service = models.ForeignKey(Service, on_delete=models.CASCADE, help_text="Nom du service d'affectation.")
+    site = models.ForeignKey(Site, on_delete=models.CASCADE, help_text="Nom du site d'affectation.")
+    societe = models.ForeignKey(Societe, on_delete=models.CASCADE, help_text="Nom de la société d'affectation.")
+    actif_p = models.BooleanField(default=True, verbose_name="Actif", help_text="Conducteur actif ?")
+    interim_p = models.BooleanField(default=False, verbose_name="Intérim", help_text="Conducteur intérimaire ?")
+
+    objects = models.Manager()
+    actifs = ConducteurActiveManager()
+
+    def __str__(self):
+        return f"{self.prenom} {self.nom}"
+
+    @property
+    def nom_complet(self):
+        return f"{self.prenom} {self.nom}"
+
+    @property
+    def est_actuellement_actif(self):
+        if self.actif_p:
+            return True
+        return False
+
+    @property
+    def age(self):
+        if not self.date_naissance:
+            return None
+        hoy = today()
+        return hoy.year() - self.date_naissance.year - ((hoy.month, hoy.day) < (self.date_naissance.month, self.date_naissance.day))
+
+    @property
+    def anciennete_jours(self):
+        fin = self.date_sortie if self.date_sortie else date.today()
+        return (fin - self.date_entree).days 
+
+    def clean(self):
+        """Validation métier"""
+        erreurs = {}
+
+        # Validation des noms
+        if self.nom:
+            self.nom = self.nom.strip().title()
+        if self.prenom:
+            self.prenom = self.prenom.strip().title()
+        
+        if not self.nom:
+            erreurs['nom'] = 'Le nom ne peut pas être vide.'
+        if not self.prenom:
+            erreurs['prenom'] = 'Le prénom ne peut pas être vide.'
+
+        # Validation des dates
+        if self.date_naissance and self.date_naissance >= self.date_entree:
+            erreurs['date_naissance'] = "La date de naissance doit être antérieure à la date d'entrée."
+        
+        if self.date_naissance and self.date_naissance > date.today():
+            erreurs['date_naissance'] = 'La date de naissance ne peut pas être dans le futur.'
+        
+        if self.date_entree > date.today():
+            erreurs['date_entree'] = "La date d'entrée ne peut pas être dans le futur."
+        
+        if self.date_sortie:
+            if self.date_sortie <= self.date_entree:
+                erreurs['date_sortie'] = "La date de sortie doit être postérieure à la date d'entrée."
+            if self.date_sortie > date.today():
+                erreurs['date_sortie'] = "La date de sortie ne peut pas être dans le futur."
+
+        # Validation de cohérence
+        if not self.actif_p and not self.date_sortie:
+            erreurs['date_sortie'] = 'Un conducteur inactif doit avoir une date de sortie.'
+        
+        if self.date_sortie and self.actif_p:
+            erreurs['actif_p'] = 'Un conducteur avec une date de sortie passée ne peut pas être actif.'
+
+        if erreurs:
+            raise ValidationError(erreurs)
+        
+    class Meta:
+        verbose_name = "Conducteur"
+        verbose_name_plural = "Conducteurs"
+        ordering = ['nom', 'prenom']
+        indexes = [
+            models.Index(fields=['nom', 'prenom']),
+            models.Index(fields=['erp_id']),
+            models.Index(fields=['actif_p', 'date_sortie']),
+            models.Index(fields=['service', 'site']),
+        ]
+
+class Notateur(models.Model):
+    nom = models.CharField(max_length=255)
+    prenom = models.CharField(max_length=255)
+    date_entree = models.DateField(help_text="Date d'embauche")
+    date_sortie = models.DateField(null=True, blank=True, help_text="Date de fin de contrat")
+    service = models.ForeignKey(Service, on_delete=models.CASCADE, help_text="Service d'affectation")
+
+    def __str__(self):
+        return f"{self.prenom} {self.nom}"
+
+    @property
+    def nom_complet(self):
+        return f"{self.prenom} {self.nom}"
+
+    @property
+    def est_actif(self):
+        """Vérifie si le notateur est actuellement actif"""
+        return not self.date_sortie or self.date_sortie > date.today()
+
+    def clean(self):
+        """Validation métier"""
+        erreurs = {}
+
+        # Validation des noms
+        if self.nom:
+            self.nom = self.nom.strip().title()
+        if self.prenom:
+            self.prenom = self.prenom.strip().title()
+        
+        if not self.nom:
+            erreurs['nom'] = 'Le nom ne peut pas être vide.'
+        if not self.prenom:
+            erreurs['prenom'] = 'Le prénom ne peut pas être vide.'
+
+        # Validation des dates
+        if self.date_entree > date.today():
+            erreurs['date_entree'] = "La date d'entrée ne peut pas être dans le futur."
+        
+        if self.date_sortie:
+            if self.date_sortie <= self.date_entree:
+                erreurs['date_sortie'] = "La date de sortie doit être postérieure à la date d'entrée."
+            if self.date_sortie > date.today():
+                erreurs['date_sortie'] = 'La date de sortie ne peut pas être dans le futur.'
+
+        if erreurs:
+            raise ValidationError(erreurs)
+        
+    class Meta:
+        verbose_name = "Notateur"
+        verbose_name_plural = "Notateurs"
+        ordering = ['nom', 'prenom']
+        indexes = [
+            models.Index(fields=['nom', 'prenom']),
+            models.Index(fields=['date_sortie']),
+        ]
+        
+class CriteresNotation(models.Model):
+    nom = models.CharField(max_length=255, help_text="Nom du critère de notation")
+    description = models.TextField(blank="True", help_text="Description")
+    valeur_mini = models.IntegerField(help_text="Valeur plancher")
+    valeur_maxi = models.IntegerField(help_text="Valeur plafond")
+    actif = models.BooleanField(default=True, help_text="Critère actuellement utilisé")    
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.nom} {self.valeur_mini}-{self.valeur_maxi}"
+
+    @property
+    def plage_valeurs(self):
+        return f"{self.valeur_mini} à {self.valeur_maxi}"
+
+    def clean(self):
+        """Validation métier"""
+        erreurs = {}
+
+        if self.nom:
+            self.nom = self.nom.strip()
+        if not self.nom:
+            erreurs['nom'] = 'Le nom du critère ne peut pas être vide.'
+
+        if self.valeur_mini >= self.valeur_maxi:
+            erreurs['valeur_maxi'] = 'La valeur maximale doit être supérieure à la valeur minimale.'
+        
+        if self.valeur_mini < 0:
+            erreurs['valeur_mini'] = 'La valeur minimale ne peut pas être négative.'
+
+        if erreurs:
+            raise ValidationError(erreurs)
+
+        
+    class Meta:
+        verbose_name = "Critère de notation"
+        verbose_name_plural = "Critères de notation"
+        ordering = ['nom']
+        indexes = [
+            models.Index(fields=['nom']),
+            models.Index(fields=['actif']),
+        ]
+
+class Notation(models.Model):
+    date_notation = models.DateField(help_text="Date de la notation")
+    notateur = models.ForeignKey(Notateur, on_delete=models.CASCADE, help_text="")
+    conducteur = models.ForeignKey(Conducteur, on_delete=models.CASCADE, help_text="")
+    critere = models.ForeignKey(CriteresNotation, on_delete=models.CASCADE, help_text="")
+    valeur = models.IntegerField(null=True, blank=True, help_text="")
+
+    def __str__(self):
+        return f"{self.conducteur} - {self.critere} : {self.valeur}"
+
+    class Meta:
+        verbose_name = "Notation"
+        verbose_name_plural = "Notations"
+        unique_together = ['conducteur', 'critere', 'date_notation', 'notateur']
+
+class HistoriqueNotation(models.Model):
+    notation = models.ForeignKey(Notation, on_delete=models.CASCADE)
+    notateur = models.ForeignKey(Notateur, on_delete=models.CASCADE)
+    conducteur = models.ForeignKey(Conducteur, on_delete=models.CASCADE)
+    critere = models.ForeignKey(CriteresNotation, on_delete=models.CASCADE)
+    ancienne_valeur = models.IntegerField(null=True, blank=True)
+    nouvelle_valeur = models.IntegerField()
+    date_changement = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        verbose_name = "Historique de notation"
+        verbose_name_plural = "Historiques de notation"
+
+class HistoriqueSite(models.Model):
+    conducteur = models.ForeignKey(Conducteur, on_delete=models.CASCADE)
+    site = models.ForeignKey(Site, on_delete=models.CASCADE)
+    date_entree = models.DateField()
+    date_sortie = models.DateField(null=True, blank=True)
+
+    class Meta:
+        verbose_name = "Historique de site"
+        verbose_name_plural = "Historiques de site"
+
+# ==================== MANAGERS PERSONNALISÉS ====================
+
+class ConducteurActiveManager(models.Manager):
+    """Manager pour récupérer uniquement les conducteurs actifs"""
+    def get_queryset(self):
+        today = date.today()
+        return super().get_queryset().filter(
+            actif_p=True,
+            models.Q(date_sortie__isnull=True) | models.Q(date_sortie__gt=today)
+        )
+
+
+class NotationRecentManager(models.Manager):
+    """Manager pour les notations récentes (6 derniers mois)"""
+    def get_queryset(self):
+        from datetime import datetime, timedelta
+        six_months_ago = date.today() - timedelta(days=180)
+        return super().get_queryset().filter(date_notation__gte=six_months_ago)
+
+
+        
