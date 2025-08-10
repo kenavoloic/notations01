@@ -4,6 +4,8 @@ from django.utils import timezone
 from django.contrib.auth.models import Group, User
 from django.urls import reverse
 from django.core.exceptions import ValidationError
+from datetime import date
+from django.db.models import Q
 
 # Gestion des groupes
 class GroupePage(models.Model):
@@ -138,10 +140,51 @@ class GroupMembership(models.Model):
 # ==================== Logique métier ====================
 # Questionnement : on_delete=models.CASCADE ou on_delete=models.PROTECT ?
 # Pour l'instant CASCADE mais très certainement PROTECT 
+
+# ==================== MANAGERS PERSONNALISÉS ====================
+
+# class ConducteurActiveManager(models.Manager):
+#     """Manager pour récupérer uniquement les conducteurs actifs"""
+#     def get_queryset(self):
+#         hoy = date.today()
+#         return super().get_queryset().filter(
+#             actif_p=True,
+#             (models.Q(date_sortie__isnull=True) | models.Q(date_sortie__gt=hoy))
+#         )
+
+
+# class ConducteurActiveManager(models.Manager):
+#     """Manager pour récupérer uniquement les conducteurs actifs"""
+#     def get_queryset(self):
+#         hoy = date.today()
+#         return super().get_queryset().filter(
+#             actif_p=True,
+#             Q(date_sortie__isnull=True) | Q(date_sortie__gt=hoy)
+#         )
+
+class ConducteurActiveManager(models.Manager):
+    """Manager pour récupérer uniquement les conducteurs actifs"""
+    def get_queryset(self):
+        aujourd_hui = date.today()
+        # Conducteurs sans date de sortie OU avec date de sortie future
+        condition_date = Q(date_sortie__isnull=True) | Q(date_sortie__gt=aujourd_hui)
+        
+        return super().get_queryset().filter(
+            actif_p=True
+        ).filter(condition_date)
+
+class NotationRecentManager(models.Manager):
+    """Manager pour les notations récentes (6 derniers mois)"""
+    def get_queryset(self):
+        from datetime import datetime, timedelta
+        six_months_ago = date.today() - timedelta(days=180)
+        return super().get_queryset().filter(date_notation__gte=six_months_ago)
+
+
 #=========================================================
 class Societe(models.Model):
     nom = models.CharField(max_length=255, help_text="Nom de la société")
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True, null=True)
     
     def __str__(self):
         return self.nom
@@ -160,7 +203,7 @@ class Societe(models.Model):
 
 class Service(models.Model):
     nom = models.CharField(max_length=255, help_text="Nom du service")
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True, null=True)
     
     def __str__(self):
         return self.nom
@@ -181,10 +224,11 @@ class Site(models.Model):
     nom = models.CharField(max_length=255, help_text="Commune du site")
     code_postal = models.CharField(
         max_length=5,
-        validators=[RegexValidator(r'^\d{5}$', 'Un code postal français contient 5 caractères')],
+        #validators=[RegexValidator(regex=r'^\d{5}$', message='Un code postal français contient 5 caractères')],
+        validators=[RegexValidator(r'^\d{5}$', message='Un code postal français contient 5 caractères')],
         help_text="Code postal français sur 5 caractères."
     )
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True, null=True)
 
     def __str__(self):
         return f"{self.nom} ({self.code_postal})"
@@ -238,8 +282,8 @@ class Conducteur(models.Model):
     def age(self):
         if not self.date_naissance:
             return None
-        hoy = today()
-        return hoy.year() - self.date_naissance.year - ((hoy.month, hoy.day) < (self.date_naissance.month, self.date_naissance.day))
+        hoy = date.today()
+        return hoy.year - self.date_naissance.year - ((hoy.month, hoy.day) < (self.date_naissance.month, self.date_naissance.day))
 
     @property
     def anciennete_jours(self):
@@ -301,7 +345,7 @@ class Conducteur(models.Model):
 class Notateur(models.Model):
     nom = models.CharField(max_length=255)
     prenom = models.CharField(max_length=255)
-    date_entree = models.DateField(help_text="Date d'embauche")
+    date_entree = models.DateField(null=True, blank=True, help_text="Date d'embauche")
     date_sortie = models.DateField(null=True, blank=True, help_text="Date de fin de contrat")
     service = models.ForeignKey(Service, on_delete=models.CASCADE, help_text="Service d'affectation")
 
@@ -356,11 +400,11 @@ class Notateur(models.Model):
         
 class CriteresNotation(models.Model):
     nom = models.CharField(max_length=255, help_text="Nom du critère de notation")
-    description = models.TextField(blank="True", help_text="Description")
+    description = models.TextField(blank=True, help_text="Description")
     valeur_mini = models.IntegerField(help_text="Valeur plancher")
     valeur_maxi = models.IntegerField(help_text="Valeur plafond")
     actif = models.BooleanField(default=True, help_text="Critère actuellement utilisé")    
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True, null=True)
 
     def __str__(self):
         return f"{self.nom} {self.valeur_mini}-{self.valeur_maxi}"
@@ -435,24 +479,6 @@ class HistoriqueSite(models.Model):
         verbose_name = "Historique de site"
         verbose_name_plural = "Historiques de site"
 
-# ==================== MANAGERS PERSONNALISÉS ====================
-
-class ConducteurActiveManager(models.Manager):
-    """Manager pour récupérer uniquement les conducteurs actifs"""
-    def get_queryset(self):
-        today = date.today()
-        return super().get_queryset().filter(
-            actif_p=True,
-            models.Q(date_sortie__isnull=True) | models.Q(date_sortie__gt=today)
-        )
-
-
-class NotationRecentManager(models.Manager):
-    """Manager pour les notations récentes (6 derniers mois)"""
-    def get_queryset(self):
-        from datetime import datetime, timedelta
-        six_months_ago = date.today() - timedelta(days=180)
-        return super().get_queryset().filter(date_notation__gte=six_months_ago)
 
 
         

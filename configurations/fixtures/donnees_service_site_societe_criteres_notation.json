@@ -1,0 +1,139 @@
+[
+        {
+        "model": "configurations.Service",
+        "pk": 1,
+        "fields": {
+            "nom": "Ressources humaines"
+        }
+    },
+    {
+        "model": "configurations.Service",
+        "pk": 2,
+        "fields": {
+            "nom": "Exploitation"
+        }
+    },
+      {
+        "model": "configurations.Site",
+        "pk": 1,
+        "fields": {
+            "nom": "Bordeaux",
+            "code_postal": "33000"
+        }
+    },
+    {
+        "model": "configurations.Site",
+        "pk": 2,
+        "fields": {
+            "nom": "Libourne",
+            "code_postal": "33500"
+        }
+    },
+    {
+        "model": "configurations.Site",
+        "pk": 3,
+        "fields": {
+            "nom": "Arcachon",
+            "code_postal": "33120"
+        }
+    },
+
+      {
+        "model": "configurations.Societe",
+        "pk": 1,
+        "fields": {
+            "nom": "A"
+        }
+    },
+    {
+        "model": "configurations.Societe",
+        "pk": 2,
+        "fields": {
+            "nom": "B"
+        }
+    },
+    {
+        "model": "configurations.Societe",
+        "pk": 3,
+        "fields": {
+            "nom": "C"
+        }
+    },
+    {
+        "model": "configurations.CriteresNotation",
+        "pk": 1,
+        "fields": {
+            "nom": "Respect des horaires",
+	    "description": "Respect des horaires",
+	    "valeur_mini": 1,
+	    "valeur_maxi": 10,
+	    "actif": "True"	    
+        }
+    },
+    {
+        "model": "configurations.CriteresNotation",
+        "pk": 2,
+        "fields": {
+            "nom": "Entretien véhicule",
+	    "description": "Entretien du véhicule",
+	    "valeur_mini": 1,
+	    "valeur_maxi": 10,
+	    "actif": "True"	    
+        }
+    },
+    {
+        "model": "configurations.CriteresNotation",
+        "pk": 3,
+        "fields": {
+            "nom": "Communication",
+	    "description": "Communication",
+	    "valeur_mini": 1,
+	    "valeur_maxi": 10,
+	    "actif": "True"	    
+        }
+    },
+    {
+        "model": "configurations.CriteresNotation",
+        "pk": 4,
+        "fields": {
+            "nom": "Respect des horaires de travail",
+	    "description": "Respect des horaires de travail (ODM)",
+	    "valeur_mini": 1,
+	    "valeur_maxi": 10,
+	    "actif": "True"	    
+        }
+    },
+    {
+        "model": "configurations.CriteresNotation",
+        "pk": 5,
+        "fields": {
+            "nom": "Remplissage des CMR",
+	    "description": "Remplissage des CMR",
+	    "valeur_mini": 1,
+	    "valeur_maxi": 10,
+	    "actif": "True"	    
+        }
+    },
+    {
+        "model": "configurations.CriteresNotation",
+        "pk": 6,
+        "fields": {
+            "nom": "Avis client",
+	    "description": "Avis client",
+	    "valeur_mini": 1,
+	    "valeur_maxi": 10,
+	    "actif": "True"	    
+        }
+    },
+    {
+        "model": "configurations.CriteresNotation",
+        "pk": 7,
+        "fields": {
+            "nom": "Comportement interne",
+	    "description": "Comportement interne",
+	    "valeur_mini": 1,
+	    "valeur_maxi": 10,
+	    "actif": "True"	    
+        }
+    }
+]
