@@ -1,0 +1,47 @@
+[
+      {
+        "model": "configurations.Notateur",
+        "pk": 1,
+        "fields": {
+            "nom": "martin",
+	    "prenom": "alice",
+            "date_entree": null,
+	    "date_sortie": null,
+	    "service": 1
+        }
+    },
+    {
+        "model": "configurations.Notateur",
+        "pk": 2,
+        "fields": {
+            "nom": "bernard",
+	    "prenom": "ambre",
+            "date_entree": null,
+	    "date_sortie": null,
+	    "service": 2
+        }
+    },
+    {
+        "model": "configurations.Notateur",
+        "pk": 3,
+        "fields": {
+            "nom": "Thomas",
+	    "prenom": "Raphaël",
+            "date_entree": null,
+	    "date_sortie": null,
+	    "service": 1	    
+
+        }
+    },
+    {
+        "model": "configurations.Notateur",
+        "pk": 4,
+        "fields": {
+            "nom": "Gauthier",
+	    "prenom": "Milo",
+            "date_entree": null,
+	    "date_sortie": null,
+	    "service": 2
+        }
+    }
+]

@@ -253,6 +253,8 @@ class Conducteur(models.Model):
     erp_id = models.IntegerField(unique=True, help_text="Identifiant du conducteur dans l'ERP.")
     nom = models.CharField(max_length=255)
     prenom = models.CharField(max_length=255)
+    nom_slug = models.CharField(max_length=255, blank=True, help_text="Nom original pour l'affichage")
+    prenom_slug = models.CharField(max_length=255, blank=True, help_text="Prénom original pour l'affichage")    
     date_naissance = models.DateField(null=True, blank=True, help_text="Date de naissance (optionnelle).")
     date_entree = models.DateField(help_text="Date d'embauche")
     date_sortie = models.DateField(null=True, blank=True, help_text="Date de fin de contrat.")
@@ -266,11 +268,36 @@ class Conducteur(models.Model):
     actifs = ConducteurActiveManager()
 
     def __str__(self):
-        return f"{self.prenom} {self.nom}"
+        return f"{self.prenom_affichage} {self.nom_affichage}"
 
     @property
     def nom_complet(self):
-        return f"{self.prenom} {self.nom}"
+        return f"{self.prenom_affichage} {self.nom_affichage}"
+
+
+    def save(self, *args, **kwargs):
+        # Si c'est une création (pas d'ID) ou si les champs slug sont vides
+        is_new = self.pk is None
+        
+        if self.nom:
+            if is_new or not self.nom_slug:
+                self.nom_slug = self.nom
+            self.nom = self.nom.lower()
+            
+        if self.prenom:
+            if is_new or not self.prenom_slug:
+                self.prenom_slug = self.prenom
+            self.prenom = self.prenom.lower()
+        
+        super().save(*args, **kwargs)
+    
+    @property
+    def nom_affichage(self):
+        return self.nom_slug if self.nom_slug else self.nom
+    
+    @property
+    def prenom_affichage(self):
+        return self.prenom_slug if self.prenom_slug else self.prenom
 
     @property
     def est_actuellement_actif(self):
@@ -345,16 +372,43 @@ class Conducteur(models.Model):
 class Notateur(models.Model):
     nom = models.CharField(max_length=255)
     prenom = models.CharField(max_length=255)
+    nom_slug = models.CharField(max_length=255, blank=True, help_text="Nom original pour l'affichage")
+    prenom_slug = models.CharField(max_length=255, blank=True, help_text="Prénom original pour l'affichage")
     date_entree = models.DateField(null=True, blank=True, help_text="Date d'embauche")
     date_sortie = models.DateField(null=True, blank=True, help_text="Date de fin de contrat")
     service = models.ForeignKey(Service, on_delete=models.CASCADE, help_text="Service d'affectation")
 
+    def save(self, *args, **kwargs):
+        # Si c'est une création (pas d'ID) ou si les champs slug sont vides
+        is_new = self.pk is None
+        
+        if self.nom:
+            if is_new or not self.nom_slug:
+                self.nom_slug = self.nom
+            self.nom = self.nom.lower()
+            
+        if self.prenom:
+            if is_new or not self.prenom_slug:
+                self.prenom_slug = self.prenom
+            self.prenom = self.prenom.lower()
+        
+        super().save(*args, **kwargs)
+
+    @property
+    def nom_affichage(self):
+        return self.nom_slug if self.nom_slug else self.nom
+    
+    @property
+    def prenom_affichage(self):
+        return self.prenom_slug if self.prenom_slug else self.prenom
+
+        
     def __str__(self):
-        return f"{self.prenom} {self.nom}"
+        return f"{self.prenom_affichage} {self.nom_affichage}"
 
     @property
     def nom_complet(self):
-        return f"{self.prenom} {self.nom}"
+        return f"{self.prenom_affichage} {self.nom_affichage}"
 
     @property
     def est_actif(self):
